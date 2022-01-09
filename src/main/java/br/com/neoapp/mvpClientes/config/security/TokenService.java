@@ -18,7 +18,7 @@ public class TokenService {
 
 	@Value("${api.jwt.secret}")
 	private String secret;
-
+	
 	public String gerarToken(Usuario logado) {
 
 		Date agora = new Date();
