@@ -72,13 +72,12 @@ public class ClientesController {
 
 	@PostMapping
 	@ApiOperation(value = "Adiciona um usuário")
-	public ResponseEntity<?> cadastrar(@RequestBody @Valid ClienteForm formulario,
-			UriComponentsBuilder uriBuilder) {
+	public ResponseEntity<?> cadastrar(@RequestBody @Valid ClienteForm formulario, UriComponentsBuilder uriBuilder) {
 		Cliente cliente = formulario.converter(clienteRepository);
-		if(clienteRepository.findByCpf(cliente.getCpf()).isPresent()) {
+		if (clienteRepository.findByCpf(cliente.getCpf()).isPresent()) {
 			return ResponseEntity.badRequest().body("Este CPF já foi cadastrado anteriormente");
 		}
-		
+
 		clienteRepository.save(cliente);
 		URI uri = uriBuilder.path("/clientes/{id}").buildAndExpand(cliente.getCpf()).toUri();
 		return ResponseEntity.created(uri).body(new ClienteDto(cliente));
@@ -89,9 +88,13 @@ public class ClientesController {
 	@ApiOperation(value = "Atualiza um usuário")
 	@Transactional
 	public ResponseEntity<ClienteDto> atualizar(@PathVariable String id, @RequestBody @Valid ClienteForm formulario) {
-		Cliente cliente = formulario.atualizar(id, clienteRepository);
 
-		return ResponseEntity.ok(new ClienteDto(cliente));
+		Optional<Cliente> optional = clienteRepository.findByCpf(id);
+		if (optional.isPresent()) {
+			Cliente cliente = formulario.atualizar(id, clienteRepository);
+			return ResponseEntity.ok(new ClienteDto(cliente));
+		}
+		return ResponseEntity.notFound().build();
 	}
 
 	@DeleteMapping("/{id}")
