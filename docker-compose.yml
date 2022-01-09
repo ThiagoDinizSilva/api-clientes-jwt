@@ -1,0 +1,29 @@
+version: '3.5'
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: desenv
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - "15432:5432"
+    networks:
+      - app-network
+    restart: unless-stopped  
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:      
+      PGADMIN_DEFAULT_EMAIL: "pgadmin@pgadmin.com"
+      PGADMIN_DEFAULT_PASSWORD: "pgadmin"
+    ports:
+      - "3002:80"
+    networks:
+      - app-network
+    restart: unless-stopped
+networks: 
+  app-network:
+    driver: bridge
