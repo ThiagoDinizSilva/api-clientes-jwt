@@ -2,10 +2,10 @@
 Abaixo uma lista das afirmações que foram consideradas verdadeiras durante o desenvolvimento:
 	
 	* no banco de dados, a chave primária será um ID gerado pelo próprio banco
-	* os campos CPF e EMAIL serão únicos(Não poderá existir 2 cpf iguais. Também não poderá existir 2 emails iguais). Podendo, assim, ultilizar tanto o cpf quanto o e-mail para identificar únicamente um usuário
+	* o CPF será único então na rota post precisamos buscar se aquele CPF existe e retornar um BAD_REQUEST e uma mensagem informando que o cliente já existe no banco de dados
 	* as url's do Swagger podem ser acessadas sem nenhum tipo de autenticação
 	* as rotas da API serão acessadas via postman durante o desenvolvimento, tornando desnecessária a tela de login do Spring Boot
-	* o usuário com acesso à aplicação será o email: admin@admin.com e a senha: admin 
+	* o usuário com acesso à aplicação será o email: admin@neoapp.com e a senha: neoapp1234Admin 
 
 ## Preparando o ambiente
 	
@@ -17,11 +17,11 @@ Abaixo uma lista das afirmações que foram consideradas verdadeiras durante o d
 ## Ordem cronológica da codificação
 	
 	* Definir como irá funcionar os modelos dos Clientes e dos Usuários
-	* Desenvolver os Controllers, Repository, Formulario e Dto para Clientes	
-	* Repetir o  passo anterior para Usuários	
+	* Desenvolver os Controllers, Repository, Formularios e Dto's para Clientes	
+	* Repetir o passo anterior para Usuários	
 	* Desenvolver o pacote security que vai cuidar da autenticação e gerar os tokens	
-	* Desenvolver o pacote validação que irá cuidar dos erros de formulários e dos repositories	
-	* Desenvolver os testes necessários para os controllers
+	* Desenvolver o pacote validação que irá cuidar dos erros de formulários
+	* Desenvolver os testes necessários para os controllers,repository e gerador de token
 
 ### Definindo Clientes
 	
@@ -55,7 +55,7 @@ Abaixo uma lista das afirmações que foram consideradas verdadeiras durante o d
 
 	* foi criada a função FindByOptionalParams dentro do clienteRepository com uma anotação @Query que avalia se os parâmetros passados não são nulos e atribui uma clausula Where com aquele parâmetro caso ele não seja nulo. Dessa forma, podem ser passados 1,2 ou 3 parâmetros para buscar os clientes (nome,cpf e email);
 
-	* as funções de busca estão com problemas quando não encontram nada, as funções foram atualizadas com um Optional<Cliente> e um if(cliente.isPresent()) para resolver esse problema
+	* as rotas estavam rertornando erro 500 quando não encontravam nenhum cliente, as funções foram atualizadas com um bloco try/catch que valida Optional<Cliente> com um if(cliente.isPresent()) para resolver esse problema. os Repository's agora retornam um Optional ao invés de um cliente
 	
 ### Autenticação
 
@@ -79,6 +79,15 @@ Abaixo uma lista das afirmações que foram consideradas verdadeiras durante o d
 	* Por ultimo,  após autenticar nosso usuário, nossa classe TokenService vai cuidar de gerar esse token para podermos retornar ao cliente caso o login esteja correto.
 	*no nosso aplication.properties vamos deixar salvo o secret da aplicação e o tempo de expiração para centralizar as variáveis de configuração da nossa aplicação.
 	* vamos gerar nosso token com o nome do usuário logado, a data de criação do token e o tempo de expiração, nessa classe também vamos definir uma função que valida o token recebido para podermos ultilizar na nossa classe AuthViaToken
+	
+	* Foi adicionado o usuário e senha direto no banco. Para conseguir a senha criptografada foi só criar uma classe main e gerar um sysout com o Bcrypt, pegar a string no console e inserir no campo senha do banco.
+	
+	
+		public static void main(String[] args) {
+		System.out.println(new BCryptPasswordEncoder().encode("neoapp1234Admin"));
+	}
+	
+	insert into usuario (email,nome,senha) values("admin@neoapp.com","admin","$2a$10$8Ffus5n4ap1EUp4k1EsKPOXcPH.6zCQ/rQfgUPHpCdhZ.CmxXb1Fa");
 
 ## Adicionando o Swagger
 	* adicionado o swagger no pom.xml
@@ -86,19 +95,10 @@ Abaixo uma lista das afirmações que foram consideradas verdadeiras durante o d
 	
 ## Testes
 
-* Com a aplicação pronta, por ser um projeto pequeno, uma nova revisão será feita na estrutura do código onde será reavaliada a necessidade de testes em cada unidade e cada teste a ser realizado será acompanhado de uma automatização com o JUnit
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	* Com a aplicação pronta, por ser um projeto pequeno, uma nova revisão foi feita na estrutura do código onde foram implementados ou atualizados os testes e cada teste foi acompanhado de uma automatização com o JUnit
+
+
+## Deploy no Heroku
+
+	* o aplication.properties foi atualizado com as variáveis do heroku para a aplicação poder rodar na nuvem. o próprio heroku cuida dos testes e deploy da aplicação, sendo necessário somente adicionar um resource do postgresql e inserir o usuario e senha do administrador para permitir acesso
 
